@@ -44,38 +44,38 @@ spec:
                               title: Virtual Private Cloud
                               enum: ["vcn-app-east", "vcn-db-east"]
                       - if:
-                        properties:
-                          region: { const: "west" }
-                        then:
-                          required: ["vpc"]
                           properties:
-                            vcn:
-                              type: string
-                              title: Virtual Private Cloud
-                              enum: ["vcn-app-west", "vcn-db-west"]
-                          dependencies:
-                            vpc:
-                              allOf:
-                                - if:
-                                    properties:
-                                      vcn: { const: "vcn-app-west" }
-                                  then:
-                                    required: ["subnet"]
-                                    properties:
-                                      subnet:
-                                        type: string
-                                        title: Subnet
-                                        enum: ["subnet-app-public", "subnet-app-private"]
-                                - if:
-                                    properties:
-                                      vcn: { const: "vcn-app-east" }
-                                  then:
-                                    required: ["subnet"]
-                                    properties:
-                                      subnet:
-                                        type: string
-                                        title: Subnet
-                                        enum: ["subnet-app-public", "subnet-app-private"]
+                            region: { const: "west" }
+                          then:
+                            required: ["vpc"]
+                            properties:
+                              vcn:
+                                type: string
+                                title: Virtual Private Cloud
+                                enum: ["vcn-app-west", "vcn-db-west"]
+                            dependencies:
+                              vpc:
+                                allOf:
+                                  - if:
+                                      properties:
+                                        vcn: { const: "vcn-app-west" }
+                                    then:
+                                      required: ["subnet"]
+                                      properties:
+                                        subnet:
+                                          type: string
+                                          title: Subnet
+                                          enum: ["subnet-app-public", "subnet-app-private"]
+                                  - if:
+                                      properties:
+                                        vcn: { const: "vcn-app-east" }
+                                    then:
+                                      required: ["subnet"]
+                                      properties:
+                                        subnet:
+                                          type: string
+                                          title: Subnet
+                                          enum: ["subnet-app-public", "subnet-app-private"]
             - if:
                 properties:
                   aws_account: { const: "aws-dev-qa" }
@@ -99,38 +99,38 @@ spec:
                               title: Virtual Private Cloud
                               enum: ["vcn-app-east", "vcn-db-east"]
                       - if:
-                        properties:
-                          region: { const: "west" }
-                        then:
-                          required: ["vpc"]
                           properties:
-                            vcn:
-                              type: string
-                              title: Virtual Private Cloud
-                              enum: ["vcn-app-west", "vcn-db-west"]
-                          dependencies:
-                            vpc:
-                              allOf:
-                                - if:
-                                    properties:
-                                      vcn: { const: "vcn-app-west" }
-                                  then:
-                                    required: ["subnet"]
-                                    properties:
-                                      subnet:
-                                        type: string
-                                        title: Subnet
-                                        enum: ["subnet-app-public", "subnet-app-private"]
-                                - if:
-                                    properties:
-                                      vcn: { const: "vcn-app-east" }
-                                  then:
-                                    required: ["subnet"]
-                                    properties:
-                                      subnet:
-                                        type: string
-                                        title: Subnet
-                                        enum: ["subnet-app-public", "subnet-app-private"]
+                            region: { const: "west" }
+                          then:
+                            required: ["vpc"]
+                            properties:
+                              vcn:
+                                type: string
+                                title: Virtual Private Cloud
+                                enum: ["vcn-app-west", "vcn-db-west"]
+                            dependencies:
+                              vpc:
+                                allOf:
+                                  - if:
+                                      properties:
+                                        vcn: { const: "vcn-app-west" }
+                                    then:
+                                      required: ["subnet"]
+                                      properties:
+                                        subnet:
+                                          type: string
+                                          title: Subnet
+                                          enum: ["subnet-app-public", "subnet-app-private"]
+                                  - if:
+                                      properties:
+                                        vcn: { const: "vcn-app-east" }
+                                    then:
+                                      required: ["subnet"]
+                                      properties:
+                                        subnet:
+                                          type: string
+                                          title: Subnet
+                                          enum: ["subnet-app-public", "subnet-app-private"]
                     
     - title: Authentication           
       properties:
