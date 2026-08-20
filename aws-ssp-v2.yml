@@ -199,5 +199,4 @@ spec:
     text:
       - title: Job launched
         content: |
-          **Job ID:** ${{ steps['launch-job'].output.data.id }}
-          **Job status:** ${{ steps['launch-job'].output.data.status }}
+          Job Launched
