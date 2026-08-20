@@ -1,0 +1,62 @@
+--- 
+
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: my-vm-provisioning-template
+  title: Provision a VM
+spec:
+  owner: platform-team
+  type: service
+
+  parameters:                          # <-- YOUR DYNAMIC FIELDS CODE GOES HERE
+    - title: Request details
+      required:
+        - resource_type
+      properties:
+        resource_type:
+          type: string
+          title: Resource type
+          enum: ["vm", "database", "storage"]
+      dependencies:
+        resource_type:
+          allOf:
+            - if:
+                properties:
+                  resource_type: { const: "vm" }
+              then:
+                properties:
+                  vm_size: { type: string, title: "VM size" }
+                  os_image: { type: string, title: "OS image" }
+            - if:
+                properties:
+                  resource_type: { const: "database" }
+              then:
+                properties:
+                  db_engine:
+                    type: string
+                    title: Database engine
+                    enum: ["postgresql", "mysql", "oracle"]
+                  storage_gb: { type: integer, title: "Storage (GB)" }
+
+    - title: Authentication            # separate parameter step, e.g. token
+      properties:
+        token:
+          ui:field: OAuthToken
+
+  steps:                               # <-- runs AFTER the form, launches the AAP job template
+    - id: launch
+      name: Demo Job Template
+      action: rhaap:launch-job-template
+      input:
+        jobTemplateName: Demo Job Template
+        jobInventory: Demo Inventory
+        # extraVars:
+        #   resource_type: ${{ parameters.resource_type }}
+        #   vm_size: ${{ parameters.vm_size }}
+        #   db_engine: ${{ parameters.db_engine }}
+
+  output:
+    links:
+      - title: View job
+        url: ${{ steps.launch.output.jobUrl }}
