@@ -9,7 +9,7 @@ spec:
   owner: platform-team
   type: service
 
-  parameters:                          # <-- YOUR DYNAMIC FIELDS CODE GOES HERE
+  parameters:                          
     - title: Request details
       required:
         - resource_type
@@ -39,12 +39,12 @@ spec:
                     enum: ["postgresql", "mysql", "oracle"]
                   storage_gb: { type: integer, title: "Storage (GB)" }
 
-    - title: Authentication            # separate parameter step, e.g. token
+    - title: Authentication           
       properties:
         token:
           ui:field: OAuthToken
 
-  steps:                               # <-- runs AFTER the form, launches the AAP job template
+  steps:                              
     - id: launch
       name: Demo Job Template
       action: rhaap:launch-job-template
@@ -59,4 +59,5 @@ spec:
   output:
     links:
       - title: View job
-        url: ${{ steps.launch.output.jobUrl }}
+        content: |
+          Job was launched
