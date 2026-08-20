@@ -1,0 +1,156 @@
+--- 
+
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: my-aws-provisioning
+  title: Provision a VM in AWS
+spec:
+  owner: platform-team
+  type: service
+
+  parameters:                          
+    - title: Request details
+      required:
+        - aws_account
+      properties:
+        aws_account:
+          type: string
+          title: AWS Account
+          enum: ["aws-prod", "aws-dev-qa", "aws-dba-sandbox"]
+      dependencies:
+        aws_account:
+          allOf:
+            - if:
+                properties:
+                  aws_account: { const: "aws-prod" }
+              then:
+                properties:
+                  region:
+                    type: string
+                    title: Region
+                    enum: ["east", "west"]
+                dependencies:
+                  region:
+                    allOf:
+                      - if:
+                          properties:
+                            region: { const: "east" }
+                        then:
+                          required: ["vpc"]
+                          properties:
+                            vcn:
+                              type: string
+                              title: Virtual Private Cloud
+                              enum: ["vcn-app-east", "vcn-db-east"]
+                      - if:
+                        properties:
+                          region: { const: "west" }
+                      then:
+                        required: ["vpc"]
+                        properties:
+                          vcn:
+                            type: string
+                            title: Virtual Private Cloud
+                            enum: ["vcn-app-west", "vcn-db-west"]
+                        dependencies:
+                          vpc:
+                            allOf:
+                              - if:
+                                  properties:
+                                    vcn: { const: "vcn-app-west" }
+                                then:
+                                  required: ["subnet"]
+                                  properties:
+                                    subnet:
+                                      type: string
+                                      title: Subnet
+                                      enum: ["subnet-app-public", "subnet-app-private"]
+                              - if:
+                                  properties:
+                                    vcn: { const: "vcn-app-east" }
+                                then:
+                                  required: ["subnet"]
+                                  properties:
+                                    subnet:
+                                      type: string
+                                      title: Subnet
+                                      enum: ["subnet-app-public", "subnet-app-private"]
+            - if:
+                properties:
+                  aws_account: { const: "aws-dev-qa" }
+              then:
+                properties:
+                  region:
+                    type: string
+                    title: Region
+                    enum: ["east", "west"]
+                dependencies:
+                  region:
+                    allOf:
+                      - if:
+                          properties:
+                            region: { const: "east" }
+                        then:
+                          required: ["vpc"]
+                          properties:
+                            vcn:
+                              type: string
+                              title: Virtual Private Cloud
+                              enum: ["vcn-app-east", "vcn-db-east"]
+                      - if:
+                        properties:
+                          region: { const: "west" }
+                      then:
+                        required: ["vpc"]
+                        properties:
+                          vcn:
+                            type: string
+                            title: Virtual Private Cloud
+                            enum: ["vcn-app-west", "vcn-db-west"]
+                        dependencies:
+                          vpc:
+                            allOf:
+                              - if:
+                                  properties:
+                                    vcn: { const: "vcn-app-west" }
+                                then:
+                                  required: ["subnet"]
+                                  properties:
+                                    subnet:
+                                      type: string
+                                      title: Subnet
+                                      enum: ["subnet-app-public", "subnet-app-private"]
+                              - if:
+                                  properties:
+                                    vcn: { const: "vcn-app-east" }
+                                then:
+                                  required: ["subnet"]
+                                  properties:
+                                    subnet:
+                                      type: string
+                                      title: Subnet
+                                      enum: ["subnet-app-public", "subnet-app-private"]
+                    
+    - title: Authentication           
+      properties:
+        token:
+          ui:field: OAuthToken
+
+  steps:                              
+    - id: launch
+      name: Demo Job Template
+      action: rhaap:launch-job-template
+      input:
+        jobTemplateName: Demo Job Template
+        jobInventory: Demo Inventory
+        # extraVars:
+        #   resource_type: ${{ parameters.resource_type }}
+        #   vm_size: ${{ parameters.vm_size }}
+        #   db_engine: ${{ parameters.db_engine }}
+
+  output:
+    links:
+      - title: View job
+        content: |
+          Job was launched
