@@ -9,7 +9,7 @@ spec:
   owner: platform-team
   type: service
 
-  parameters:                          
+  parameters:
     - title: Request details
       required:
         - aws_account
@@ -25,6 +25,7 @@ spec:
                 properties:
                   aws_account: { const: "aws-prod" }
               then:
+                required: ["region"]
                 properties:
                   region:
                     type: string
@@ -39,47 +40,72 @@ spec:
                         then:
                           required: ["vpc"]
                           properties:
-                            vcn:
+                            vpc:
                               type: string
                               title: Virtual Private Cloud
-                              enum: ["vcn-app-east", "vcn-db-east"]
+                              enum: ["vpc-app-east", "vpc-db-east"]
+                          dependencies:
+                            vpc:
+                              allOf:
+                                - if:
+                                    properties:
+                                      vpc: { const: "vpc-app-east" }
+                                  then:
+                                    required: ["subnet"]
+                                    properties:
+                                      subnet:
+                                        type: string
+                                        title: Subnet
+                                        enum: ["subnet-app-public", "subnet-app-private"]
+                                - if:
+                                    properties:
+                                      vpc: { const: "vpc-db-east" }
+                                  then:
+                                    required: ["subnet"]
+                                    properties:
+                                      subnet:
+                                        type: string
+                                        title: Subnet
+                                        enum: ["subnet-db-private"]
                       - if:
                           properties:
                             region: { const: "west" }
-                          then:
-                            required: ["vpc"]
-                            properties:
-                              vcn:
-                                type: string
-                                title: Virtual Private Cloud
-                                enum: ["vcn-app-west", "vcn-db-west"]
-                            dependencies:
-                              vpc:
-                                allOf:
-                                  - if:
-                                      properties:
-                                        vcn: { const: "vcn-app-west" }
-                                    then:
-                                      required: ["subnet"]
-                                      properties:
-                                        subnet:
-                                          type: string
-                                          title: Subnet
-                                          enum: ["subnet-app-public", "subnet-app-private"]
-                                  - if:
-                                      properties:
-                                        vcn: { const: "vcn-app-east" }
-                                    then:
-                                      required: ["subnet"]
-                                      properties:
-                                        subnet:
-                                          type: string
-                                          title: Subnet
-                                          enum: ["subnet-app-public", "subnet-app-private"]
+                        then:
+                          required: ["vpc"]
+                          properties:
+                            vpc:
+                              type: string
+                              title: Virtual Private Cloud
+                              enum: ["vpc-app-west", "vpc-db-west"]
+                          dependencies:
+                            vpc:
+                              allOf:
+                                - if:
+                                    properties:
+                                      vpc: { const: "vpc-app-west" }
+                                  then:
+                                    required: ["subnet"]
+                                    properties:
+                                      subnet:
+                                        type: string
+                                        title: Subnet
+                                        enum: ["subnet-app-public", "subnet-app-private"]
+                                - if:
+                                    properties:
+                                      vpc: { const: "vpc-db-west" }
+                                  then:
+                                    required: ["subnet"]
+                                    properties:
+                                      subnet:
+                                        type: string
+                                        title: Subnet
+                                        enum: ["subnet-db-private"]
+
             - if:
                 properties:
                   aws_account: { const: "aws-dev-qa" }
               then:
+                required: ["region"]
                 properties:
                   region:
                     type: string
@@ -94,63 +120,45 @@ spec:
                         then:
                           required: ["vpc"]
                           properties:
-                            vcn:
+                            vpc:
                               type: string
                               title: Virtual Private Cloud
-                              enum: ["vcn-app-east", "vcn-db-east"]
+                              enum: ["vpc-app-east", "vpc-db-east"]
                       - if:
                           properties:
                             region: { const: "west" }
-                          then:
-                            required: ["vpc"]
-                            properties:
-                              vcn:
-                                type: string
-                                title: Virtual Private Cloud
-                                enum: ["vcn-app-west", "vcn-db-west"]
-                            dependencies:
-                              vpc:
-                                allOf:
-                                  - if:
-                                      properties:
-                                        vcn: { const: "vcn-app-west" }
-                                    then:
-                                      required: ["subnet"]
-                                      properties:
-                                        subnet:
-                                          type: string
-                                          title: Subnet
-                                          enum: ["subnet-app-public", "subnet-app-private"]
-                                  - if:
-                                      properties:
-                                        vcn: { const: "vcn-app-east" }
-                                    then:
-                                      required: ["subnet"]
-                                      properties:
-                                        subnet:
-                                          type: string
-                                          title: Subnet
-                                          enum: ["subnet-app-public", "subnet-app-private"]
-                    
-    - title: Authentication           
+                        then:
+                          required: ["vpc"]
+                          properties:
+                            vpc:
+                              type: string
+                              title: Virtual Private Cloud
+                              enum: ["vpc-app-west", "vpc-db-west"]
+
+    - title: Authentication
       properties:
         token:
-          ui:field: OAuthToken
+          type: string
+          ui:field: AAPTokenField
 
-  steps:                              
-    - id: launch
+  steps:
+    - id: launch-job
       name: Demo Job Template
       action: rhaap:launch-job-template
       input:
-        jobTemplateName: Demo Job Template
-        jobInventory: Demo Inventory
-        # extraVars:
-        #   resource_type: ${{ parameters.resource_type }}
-        #   vm_size: ${{ parameters.vm_size }}
-        #   db_engine: ${{ parameters.db_engine }}
+        token: ${{ parameters.token }}
+        values:
+          template: Demo Job Template
+          inventory: Demo Inventory
+          extraVariables:
+            aws_account: ${{ parameters.aws_account }}
+            region: ${{ parameters.region }}
+            vpc: ${{ parameters.vpc }}
+            subnet: ${{ parameters.subnet }}
 
   output:
-    links:
-      - title: View job
+    text:
+      - title: Job launched
         content: |
-          Job was launched
+          **Job ID:** ${{ steps['launch-job'].output.data.id }}
+          **Job status:** ${{ steps['launch-job'].output.data.status }}
