@@ -76,13 +76,13 @@ spec:
                             vpc:
                               type: string
                               title: Virtual Private Cloud
-                              enum: ["vpc-app-west", "vpc-db-west"]
+                              enum: ["vpc-app-west-qa", "vpc-db-west-qa"]
                           dependencies:
                             vpc:
                               allOf:
                                 - if:
                                     properties:
-                                      vpc: { const: "vpc-app-west" }
+                                      vpc: { const: "vpc-app-west-qa" }
                                   then:
                                     required: ["subnet"]
                                     properties:
@@ -92,7 +92,7 @@ spec:
                                         enum: ["subnet-app-public-wprod", "subnet-app-private"]
                                 - if:
                                     properties:
-                                      vpc: { const: "vpc-db-west" }
+                                      vpc: { const: "vpc-db-west-qa" }
                                   then:
                                     required: ["subnet"]
                                     properties:
