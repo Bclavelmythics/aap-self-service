@@ -3,8 +3,8 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: my-vm-provisioning-template
-  title: Provision a VM
+  name: my-aws-provisioning
+  title: Provision a VM in AWS
 spec:
   owner: platform-team
   type: service
@@ -12,33 +12,126 @@ spec:
   parameters:                          
     - title: Request details
       required:
-        - resource_type
+        - aws_account
       properties:
-        resource_type:
+        aws_account:
           type: string
-          title: Resource type
-          enum: ["vm", "database", "storage"]
+          title: AWS Account
+          enum: ["aws-prod", "aws-dev-qa", "aws-dba-sandbox"]
       dependencies:
-        resource_type:
+        aws_account:
           allOf:
             - if:
                 properties:
-                  resource_type: { const: "vm" }
+                  aws_account: { const: "aws-prod" }
               then:
                 properties:
-                  vm_size: { type: string, title: "VM size" }
-                  os_image: { type: string, title: "OS image" }
+                  region:
+                    type: string
+                    title: Region
+                    enum: ["east", "west"]
+                dependencies:
+                  region:
+                    allOf:
+                      - if:
+                          properties:
+                            region: { const: "east" }
+                        then:
+                          required: ["vpc"]
+                          properties:
+                            vcn:
+                              type: string
+                              title: Virtual Private Cloud
+                              enum: ["vcn-app-east", "vcn-db-east"]
+                      - if:
+                        properties:
+                          region: { const: "west" }
+                      then:
+                        required: ["vpc"]
+                        properties:
+                          vcn:
+                            type: string
+                            title: Virtual Private Cloud
+                            enum: ["vcn-app-west", "vcn-db-west"]
+                        dependencies:
+                          vpc:
+                            allOf:
+                              - if:
+                                  properties:
+                                    vcn: { const: "vcn-app-west" }
+                                then:
+                                  required: ["subnet"]
+                                  properties:
+                                    subnet:
+                                      type: string
+                                      title: Subnet
+                                      enum: ["subnet-app-public", "subnet-app-private"]
+                              - if:
+                                  properties:
+                                    vcn: { const: "vcn-app-east" }
+                                then:
+                                  required: ["subnet"]
+                                  properties:
+                                    subnet:
+                                      type: string
+                                      title: Subnet
+                                      enum: ["subnet-app-public", "subnet-app-private"]
             - if:
                 properties:
-                  resource_type: { const: "database" }
+                  aws_account: { const: "aws-dev-qa" }
               then:
                 properties:
-                  db_engine:
+                  region:
                     type: string
-                    title: Database engine
-                    enum: ["postgresql", "mysql", "oracle"]
-                  storage_gb: { type: integer, title: "Storage (GB)" }
-
+                    title: Region
+                    enum: ["east", "west"]
+                dependencies:
+                  region:
+                    allOf:
+                      - if:
+                          properties:
+                            region: { const: "east" }
+                        then:
+                          required: ["vpc"]
+                          properties:
+                            vcn:
+                              type: string
+                              title: Virtual Private Cloud
+                              enum: ["vcn-app-east", "vcn-db-east"]
+                      - if:
+                        properties:
+                          region: { const: "west" }
+                      then:
+                        required: ["vpc"]
+                        properties:
+                          vcn:
+                            type: string
+                            title: Virtual Private Cloud
+                            enum: ["vcn-app-west", "vcn-db-west"]
+                        dependencies:
+                          vpc:
+                            allOf:
+                              - if:
+                                  properties:
+                                    vcn: { const: "vcn-app-west" }
+                                then:
+                                  required: ["subnet"]
+                                  properties:
+                                    subnet:
+                                      type: string
+                                      title: Subnet
+                                      enum: ["subnet-app-public", "subnet-app-private"]
+                              - if:
+                                  properties:
+                                    vcn: { const: "vcn-app-east" }
+                                then:
+                                  required: ["subnet"]
+                                  properties:
+                                    subnet:
+                                      type: string
+                                      title: Subnet
+                                      enum: ["subnet-app-public", "subnet-app-private"]
+                    
     - title: Authentication           
       properties:
         token:
