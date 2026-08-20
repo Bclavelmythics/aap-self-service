@@ -135,11 +135,6 @@ spec:
                               title: Virtual Private Cloud
                               enum: ["vpc-app-west", "vpc-db-west"]
 
-    - title: Authentication
-      properties:
-        token:
-          type: string
-          ui:field: AAPTokenField
 
   steps:
     - id: launch-job
