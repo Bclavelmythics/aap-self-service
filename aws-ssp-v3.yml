@@ -179,7 +179,7 @@ spec:
                                       subnet:
                                         type: string
                                         title: Subnet
-                                        enum: ["subnet-db-private-qa]
+                                        enum: ["subnet-db-private-qa"]
   steps:
     - id: launch-job
       name: Demo Job Template
